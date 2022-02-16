@@ -18,6 +18,9 @@ fn main() {
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
 
+    // Just a naive count of each for now.
+    let mut s = Score { f: 0, d: 0 };
+
     write!(
         stdout,
         "{}{}{}",
@@ -37,19 +40,25 @@ fn main() {
             Key::Ctrl('c') | Key::Char('q') => break,
             Key::Char('f') => {
                 all_keys.push('f');
+                s.f += 1;
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
-                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2)).unwrap();
+                write!(stdout, "{}", termion::clear::All).unwrap();
+                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 1),).unwrap();
+                write!(stdout, "{}{:?}", termion::cursor::Goto(1, 3), s).unwrap();
             }
             Key::Char('d') => {
                 all_keys.push('d');
+                s.d += 1;
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
-                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2)).unwrap();
+                write!(stdout, "{}", termion::clear::All).unwrap();
+                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 1),).unwrap();
+                write!(stdout, "{}{:?}", termion::cursor::Goto(1, 3), s).unwrap();
             }
             _ => {}
         }
         stdout.flush().unwrap();
     }
-    println!("{all_keys:?}");
+    // println!("{all_keys:?}");
 }
 
 /*
@@ -62,11 +71,13 @@ set up a model of the form
 
 for each 5-gram
 */
-
+#[derive(Debug)]
 struct Model {
+    // Probably not needed.
     map: HashMap<Vec<char>, Score>,
 }
 
+#[derive(Debug)]
 struct Score {
     f: usize,
     d: usize,
@@ -114,7 +125,7 @@ fn predict_next_letter(/*five: Vec<char>*/) -> char {
     }
 }
 
-fn predict(input: char) {
+fn predict(input: char) -> (char, char) {
     // function predict (inputS) {
     //   var lastSix = inputS.slidingWindow(6,6)
     //   return lastSix.map(s => {
@@ -134,4 +145,9 @@ fn predict(input: char) {
     let last_six = vec!['f', 'f', 'f', 'f', 'f', 'f'];
     let fivegram: Vec<char> = last_six.into_iter().rev().take(5).collect();
     let prediction: char = predict_next_letter();
+    let last = 'f';
+
+    // update model
+
+    (prediction, last)
 }
