@@ -25,21 +25,24 @@ fn main() {
 
     write!(stdout, "{}", termion::cursor::Goto(1, 2)).unwrap();
 
+    let mut all_keys: Vec<char> = vec![];
+
     for c in stdin.keys() {
         match c.unwrap() {
             Key::Ctrl('c') | Key::Char('q') => break,
             Key::Char('f') => {
-                // record data
+                all_keys.push('f');
                 write!(stdout, "f{}", termion::cursor::Goto(1, 2)).unwrap()
             }
             Key::Char('d') => {
-                // record data
+                all_keys.push('d');
                 write!(stdout, "d{}", termion::cursor::Goto(1, 2)).unwrap()
             }
             _ => {}
         }
         stdout.flush().unwrap();
     }
+    println!("{all_keys:?}");
 }
 
 fn update_model_f() {
