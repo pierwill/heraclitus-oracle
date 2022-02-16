@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use std::collections::HashMap;
 use std::io::{stdin, stdout, Write};
 
 use termion::event::Key;
@@ -9,7 +10,6 @@ use termion::raw::IntoRawMode;
 const Q: &str = "press q to exit";
 
 fn main() {
-    // let mut stdin = termion::async_stdin().keys();
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
 
@@ -45,6 +45,26 @@ fn main() {
     println!("{all_keys:?}");
 }
 
+/*
+set up a model of the form
+
+  [
+  'ffffg': { f: 0 , d: 2 },
+   ...
+  ]
+
+for each 5-gram
+*/
+
+struct Score {
+    f: usize,
+    d: usize,
+}
+
+struct Model {
+    map: HashMap<Vec<char>, Score>,
+}
+
 fn update_model_f() {
     // function updateModelF (fivegram) {
     //   return function (letter) {
@@ -57,7 +77,8 @@ fn update_model_f() {
     //   }
     // }
 }
-fn predict_next_letter() {
+
+fn predict_next_letter(/*five: Vec<char>*/) -> char {
     // function predictNextLetter (fivegram) {
     //   var m = model[fivegram]
     //   if (!m)
@@ -66,7 +87,26 @@ fn predict_next_letter() {
     //     return 'f'
     //   return 'd'
     // }
+
+    let five = vec!['f', 'f', 'f', 'f', 'f'];
+
+    let mut m = Model {
+        map: HashMap::default(),
+    };
+    m.map.insert(five.clone(), Score { f: 0, d: 0 });
+
+    if m.map.is_empty() {
+        return 'f';
+    }
+
+    let score = m.map.get(&five).unwrap();
+    if score.f > score.d {
+        'f'
+    } else {
+        'd'
+    }
 }
+
 fn predict(input: char) {
     // function predict (inputS) {
     //   var lastSix = inputS.slidingWindow(6,6)
