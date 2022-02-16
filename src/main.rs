@@ -42,17 +42,41 @@ fn main() {
                 all_keys.push('f');
                 s.f += 1;
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
-                write!(stdout, "{}", termion::clear::All).unwrap();
-                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 1),).unwrap();
-                write!(stdout, "{}{:?}", termion::cursor::Goto(1, 3), s).unwrap();
+                write!(
+                    stdout,
+                    "{}{}",
+                    termion::clear::All,
+                    termion::cursor::Goto(1, 1)
+                )
+                .unwrap();
+                write!(
+                    stdout,
+                    "{:?}{}{:?}",
+                    lastfive,
+                    termion::cursor::Goto(1, 2),
+                    s
+                )
+                .unwrap();
             }
             Key::Char('d') => {
                 all_keys.push('d');
                 s.d += 1;
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
-                write!(stdout, "{}", termion::clear::All).unwrap();
-                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 1),).unwrap();
-                write!(stdout, "{}{:?}", termion::cursor::Goto(1, 3), s).unwrap();
+                write!(
+                    stdout,
+                    "{}{}",
+                    termion::clear::All,
+                    termion::cursor::Goto(1, 1)
+                )
+                .unwrap();
+                write!(
+                    stdout,
+                    "{:?}{}{:?}",
+                    lastfive,
+                    termion::cursor::Goto(1, 2),
+                    s
+                )
+                .unwrap();
             }
             _ => {}
         }
