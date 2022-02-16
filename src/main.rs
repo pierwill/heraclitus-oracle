@@ -1,11 +1,16 @@
 #![allow(dead_code)]
+#![allow(unused_imports)]
+#![allow(unused_variables)]
 
+use std::cell::RefCell;
 use std::collections::HashMap;
 use std::io::{stdin, stdout, Write};
 
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
+
+mod mean;
 
 const Q: &str = "press q to exit";
 
@@ -32,11 +37,13 @@ fn main() {
             Key::Ctrl('c') | Key::Char('q') => break,
             Key::Char('f') => {
                 all_keys.push('f');
-                write!(stdout, "f{}", termion::cursor::Goto(1, 2)).unwrap()
+                let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
+                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2)).unwrap();
             }
             Key::Char('d') => {
                 all_keys.push('d');
-                write!(stdout, "d{}", termion::cursor::Goto(1, 2)).unwrap()
+                let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
+                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2)).unwrap();
             }
             _ => {}
         }
@@ -56,16 +63,17 @@ set up a model of the form
 for each 5-gram
 */
 
+struct Model {
+    map: HashMap<Vec<char>, Score>,
+}
+
 struct Score {
     f: usize,
     d: usize,
 }
 
-struct Model {
-    map: HashMap<Vec<char>, Score>,
-}
-
-fn update_model_f() {
+fn update_model_f() /* -> Box<dyn Fn(char) -> char> */
+{
     // function updateModelF (fivegram) {
     //   return function (letter) {
     //     var fg = model[fivegram]
@@ -89,7 +97,6 @@ fn predict_next_letter(/*five: Vec<char>*/) -> char {
     // }
 
     let five = vec!['f', 'f', 'f', 'f', 'f'];
-
     let mut m = Model {
         map: HashMap::default(),
     };
@@ -123,4 +130,8 @@ fn predict(input: char) {
     //     return [prediction, last]
     //   })
     // }
+
+    let last_six = vec!['f', 'f', 'f', 'f', 'f', 'f'];
+    let fivegram: Vec<char> = last_six.into_iter().rev().take(5).collect();
+    let prediction: char = predict_next_letter();
 }
