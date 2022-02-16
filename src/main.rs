@@ -40,14 +40,6 @@ fn main() {
         }
         stdout.flush().unwrap();
     }
-
-    let mut x = FiveGram::new();
-    x.push('a');
-    x.push('b');
-    x.push('b');
-    x.push('b');
-    x.push('b');
-    println!("{x:?}");
 }
 
 fn update_model_f() {
@@ -89,5 +81,3 @@ fn predict(input: char) {
     //   })
     // }
 }
-
-type FiveGram = arrayvec::ArrayVec<char, 5>;
