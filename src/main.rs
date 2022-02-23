@@ -31,7 +31,7 @@ fn main() {
     write!(stdout, "{}", termion::cursor::Goto(1, 2)).unwrap();
 
     let mut all_keys: Vec<char> = vec![];
-    let model = Model { pred_fn: |v| v[0] };
+    let mut model = Model { pred_fn: |v| v[0] };
 
     for c in stdin.keys() {
         match c.unwrap() {
@@ -47,6 +47,7 @@ fn main() {
                 )
                 .unwrap();
                 write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2),).unwrap();
+                model = update_model_f(model, all_keys.clone());
             }
             Key::Char('d') => {
                 all_keys.push('d');
@@ -59,6 +60,7 @@ fn main() {
                 )
                 .unwrap();
                 write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2),).unwrap();
+                model = update_model_f(model, all_keys.clone());
             }
             _ => {}
         }
@@ -91,6 +93,9 @@ fn update_model_f(m: Model, all_keys: Vec<char>) -> Model {
     //     return
     //   }
     // }
+    let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
+    let f = m.pred_fn;
+    println!("current model f: {:?}", f);
 
     m
 }
@@ -112,13 +117,9 @@ fn predict(m: Model, all_keys: Vec<char>) -> (char, char) {
     //   })
     // }
 
-    let last_six = vec!['f', 'f', 'f', 'f', 'f', 'f'];
-    let fivegram: Vec<char> = last_six.into_iter().rev().take(5).collect();
+    let fivegram = all_keys.into_iter().rev().take(5).collect();
     let prediction: char = predict_next_letter(m, fivegram);
     let last = 'f';
-
-    // update model
-
     (prediction, last)
 }
 
@@ -131,5 +132,8 @@ fn predict_next_letter(m: Model, fivegram: Vec<char>) -> char {
     //     return 'f'
     //   return 'd'
     // }
+    if fivegram.len() < 5 {
+        return 'f';
+    }
     'd'
 }
