@@ -8,11 +8,12 @@ use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 
 const Q: &str = "press q to exit";
+const DEBUG: bool = true;
 
 fn main() {
+    // setup screen
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
-
     write!(
         stdout,
         "{}{}{}",
@@ -22,14 +23,14 @@ fn main() {
     )
     .unwrap();
     stdout.flush().unwrap();
-
     write!(stdout, "{}", termion::cursor::Goto(1, 2)).unwrap();
 
+    // initiate variables
     let mut all_keys: Vec<char> = vec![];
+    let mut guesses = Guesses::default();
     let mut model = Model {
         map: HashMap::default(),
     };
-    let mut guesses = Guess::default();
 
     for c in stdin.keys() {
         match c.unwrap() {
@@ -37,6 +38,8 @@ fn main() {
             Key::Char('f') => {
                 all_keys.push('f');
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
+                let predicted = predict(model.clone(), lastfive.clone());
+                let observed = lastfive.iter().rev().last().unwrap();
                 write!(
                     stdout,
                     "{}{}",
@@ -48,16 +51,30 @@ fn main() {
                 write!(
                     stdout,
                     "predicted: {}, observed: {}{}",
-                    predict(model.clone(), lastfive.clone()), // predicted
-                    lastfive.clone().iter().rev().last().unwrap(), // observed
+                    predicted,
+                    observed,
                     termion::cursor::Goto(1, 3),
                 )
                 .unwrap();
+
+                // record guesses
+                guesses.total += 1;
+                if predicted == *observed {
+                    guesses.correct += 1;
+                }
+                println!(
+                    "guess %: {}",
+                    (guesses.correct as f32 / guesses.total as f32)
+                );
+
+                // update model
                 model = update_model(model, all_keys.clone());
             }
             Key::Char('d') => {
                 all_keys.push('d');
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
+                let predicted = predict(model.clone(), lastfive.clone());
+                let observed = lastfive.iter().rev().last().unwrap();
                 write!(
                     stdout,
                     "{}{}",
@@ -69,11 +86,22 @@ fn main() {
                 write!(
                     stdout,
                     "predicted: {}, observed: {}{}",
-                    predict(model.clone(), lastfive.clone()), // predicted
-                    lastfive.clone().iter().rev().last().unwrap(), // observed
+                    predicted,
+                    observed,
                     termion::cursor::Goto(1, 3),
                 )
                 .unwrap();
+                // record guesses
+                guesses.total += 1;
+                if predicted == *observed {
+                    guesses.correct += 1;
+                }
+                println!(
+                    "guess %: {}",
+                    (guesses.correct as f32 / guesses.total as f32)
+                );
+
+                // update model
                 model = update_model(model, all_keys.clone());
             }
             _ => {}
@@ -82,11 +110,13 @@ fn main() {
     }
 
     // write data to file
-    let mut out = String::new();
-    out.push_str(format!("key history: {all_keys:?}").as_str());
-    out.push_str(format!("model: {:#?}", model.map).as_str());
-    out.push_str(format!("number of entries in map: {}", model.map.len()).as_str());
-    std::fs::write("out", out.as_bytes()).expect("oops");
+    if DEBUG {
+        let mut out = String::new();
+        out.push_str(format!("key history: {all_keys:?}\n").as_str());
+        out.push_str(format!("model: {:#?}\n", model.map).as_str());
+        out.push_str(format!("number of entries in map: {}\n", model.map.len()).as_str());
+        std::fs::write("out", out.as_bytes()).expect("oops");
+    }
 }
 
 /// A map giving the score for each fivegram.
@@ -107,7 +137,7 @@ struct Score {
 #[derive(Default, Debug, Clone)]
 struct Guesses {
     correct: i32,
-    incorrect: i32,
+    total: i32,
 }
 
 fn update_model(m: Model, all_keys: Vec<char>) -> Model {
