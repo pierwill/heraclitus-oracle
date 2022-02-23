@@ -112,7 +112,9 @@ fn main() {
     if DEBUG {
         let mut out = String::new();
         out.push_str(format!("key history: {all_keys:?}\n").as_str());
-        out.push_str(format!("model: {:#?}\n", model.map).as_str());
+        for entry in &model.map {
+            out.push_str(format!("{:?}\n", entry).as_str());
+        }
         out.push_str(format!("number of entries in map: {}\n", model.map.len()).as_str());
         std::fs::write("out", out.as_bytes()).expect("oops");
     }
