@@ -119,16 +119,6 @@ impl Default for Score {
 }
 
 fn update_model(m: Model, all_keys: Vec<char>) -> Model {
-    // function updateModelF (fivegram) {
-    //   return function (letter) {
-    //     var fg = model[fivegram]
-    //     if (!fg) {
-    //       model[fivegram] = { f: 0, d: 0 }
-    //     }
-    //     model[fivegram][letter]+=1
-    //     return
-    //   }
-    // }
     let mut model = m;
 
     let last: char = all_keys
@@ -153,38 +143,10 @@ fn update_model(m: Model, all_keys: Vec<char>) -> Model {
     println!("let's insert!");
     model.map.insert(lastfive, new_score);
 
-    // let mut mappp = HashMap::default();
-    // mappp.insert(vec!['f', 'f', 'f', 'f', 'f'], Score { f: 0, d: 0 });
-    // Model { map: mappp }
     model
 }
 
 fn predict(m: Model, all_keys: Vec<char>) -> char {
-    // function predict (inputS) {
-    //   var lastSix = inputS.slidingWindow(6,6)
-    //   return lastSix.map(s => {
-    //     var fiveGram = _.slice(s, 0,5).join('')
-    //     // predict next value
-    //     var prediction = predictNextLetter(fiveGram)
-    //     //make a fn to update model after i see real value
-    //     var updateModel = updateModelF(fiveGram)
-    //     // get the next letter now
-    //     var last = _.last(s)
-    //     // update my model with it (HACK SIDE-EFFECTY)
-    //     updateModel(last)
-    //     return [prediction, last]
-    //   })
-    // }
-
-    // function predictNextLetter (fivegram) {
-    //   var m = model[fivegram]
-    //   if (!m)
-    //     return 'f'
-    //   if (m.f > m.d)
-    //     return 'f'
-    //   return 'd'
-    // }
-
     let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
     if m.map.is_empty() {
         println!("map is empty");
