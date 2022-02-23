@@ -84,7 +84,8 @@ fn main() {
         }
         stdout.flush().unwrap();
     }
-    println!("{all_keys:?}");
+    println!("{all_keys:?}\n");
+    println!("{model:#?}");
 }
 
 /// A map like this
@@ -151,6 +152,14 @@ fn predict(m: Model, all_keys: Vec<char>) -> char {
     //   return 'd'
     // }
     let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
+    if m.map.is_empty() {
+        return 'f';
+    }
 
-    'f'
+    let current_score = m.map.get(&fivegram).unwrap();
+    if current_score.f > current_score.d {
+        return 'f';
+    } else {
+        return 'd';
+    }
 }
