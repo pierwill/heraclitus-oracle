@@ -18,9 +18,6 @@ fn main() {
     let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
 
-    // Just a naive count of each for now.
-    let mut s = Score { f: 0, d: 0 };
-
     write!(
         stdout,
         "{}{}{}",
@@ -40,7 +37,6 @@ fn main() {
             Key::Ctrl('c') | Key::Char('q') => break,
             Key::Char('f') => {
                 all_keys.push('f');
-                s.f += 1;
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
                 write!(
                     stdout,
@@ -49,18 +45,10 @@ fn main() {
                     termion::cursor::Goto(1, 1)
                 )
                 .unwrap();
-                write!(
-                    stdout,
-                    "{:?}{}{:?}",
-                    lastfive,
-                    termion::cursor::Goto(1, 2),
-                    s
-                )
-                .unwrap();
+                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2),).unwrap();
             }
             Key::Char('d') => {
                 all_keys.push('d');
-                s.d += 1;
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
                 write!(
                     stdout,
@@ -69,20 +57,13 @@ fn main() {
                     termion::cursor::Goto(1, 1)
                 )
                 .unwrap();
-                write!(
-                    stdout,
-                    "{:?}{}{:?}",
-                    lastfive,
-                    termion::cursor::Goto(1, 2),
-                    s
-                )
-                .unwrap();
+                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2),).unwrap();
             }
             _ => {}
         }
         stdout.flush().unwrap();
     }
-    // println!("{all_keys:?}");
+    println!("{all_keys:?}");
 }
 
 /*
@@ -97,14 +78,7 @@ for each 5-gram
 */
 #[derive(Debug)]
 struct Model {
-    // Probably not needed.
-    map: HashMap<Vec<char>, Score>,
-}
-
-#[derive(Debug)]
-struct Score {
-    f: usize,
-    d: usize,
+    pred_fn: fn(Vec<char>) -> char,
 }
 
 fn update_model_f() /* -> Box<dyn Fn(char) -> char> */
@@ -130,23 +104,7 @@ fn predict_next_letter(/*five: Vec<char>*/) -> char {
     //     return 'f'
     //   return 'd'
     // }
-
-    let five = vec!['f', 'f', 'f', 'f', 'f'];
-    let mut m = Model {
-        map: HashMap::default(),
-    };
-    m.map.insert(five.clone(), Score { f: 0, d: 0 });
-
-    if m.map.is_empty() {
-        return 'f';
-    }
-
-    let score = m.map.get(&five).unwrap();
-    if score.f > score.d {
-        'f'
-    } else {
-        'd'
-    }
+    'd'
 }
 
 fn predict(input: char) -> (char, char) {
