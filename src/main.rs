@@ -1,9 +1,6 @@
 #![allow(dead_code)]
-#![allow(unused_imports)]
-#![allow(unused_variables)]
 
-use std::cell::RefCell;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::io::{stdin, stdout, Write};
 
 use termion::event::Key;
@@ -58,7 +55,6 @@ fn main() {
                 )
                 .unwrap();
                 model = update_model(model, all_keys.clone());
-                println!("{:#?}", model.map);
             }
             Key::Char('d') => {
                 all_keys.push('d');
@@ -116,7 +112,13 @@ struct Score {
     d: i32,
 }
 
-fn update_model(mut m: Model, all_keys: Vec<char>) -> Model {
+impl Default for Score {
+    fn default() -> Self {
+        Self { f: 0, d: 0 }
+    }
+}
+
+fn update_model(m: Model, all_keys: Vec<char>) -> Model {
     // function updateModelF (fivegram) {
     //   return function (letter) {
     //     var fg = model[fivegram]
@@ -127,7 +129,7 @@ fn update_model(mut m: Model, all_keys: Vec<char>) -> Model {
     //     return
     //   }
     // }
-    let old_model = m.clone();
+    let mut model = m;
 
     let last: char = all_keys
         .clone()
@@ -136,29 +138,25 @@ fn update_model(mut m: Model, all_keys: Vec<char>) -> Model {
         .take(1)
         .collect::<Vec<_>>()[0];
     let lastfive: Vec<char> = all_keys.into_iter().rev().take(5).collect();
-    let current_score: Option<&Score> = m.map.get(&lastfive);
+    let current_score: Option<&Score> = model.map.get(&lastfive);
 
     if lastfive.len() < 5 {
         return Model::default();
     }
 
-    if current_score.is_none() {
-        return Model::default();
-    }
-
-    let mut new_score = current_score.unwrap().clone();
+    let mut new_score = current_score.unwrap_or(&Score::default()).clone();
     if last == 'f' {
         new_score.f += 1;
     } else if last == 'd' {
         new_score.d += 1;
     }
-
     println!("let's insert!");
-    m.map.insert(lastfive, new_score);
+    model.map.insert(lastfive, new_score);
 
-    let mut mappp = HashMap::default();
-    mappp.insert(vec!['f', 'f', 'f', 'f', 'f'], Score { f: 0, d: 0 });
-    Model { map: mappp }
+    // let mut mappp = HashMap::default();
+    // mappp.insert(vec!['f', 'f', 'f', 'f', 'f'], Score { f: 0, d: 0 });
+    // Model { map: mappp }
+    model
 }
 
 fn predict(m: Model, all_keys: Vec<char>) -> char {
@@ -189,13 +187,19 @@ fn predict(m: Model, all_keys: Vec<char>) -> char {
 
     let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
     if m.map.is_empty() {
+        println!("map is empty");
         return 'f';
     }
 
-    let current_score = m.map.get(&fivegram).unwrap();
-    if current_score.f > current_score.d {
-        return 'f';
-    } else {
-        return 'd';
+    let current_score = m.map.get(&fivegram);
+    if current_score.is_some() {
+        if current_score.unwrap().f > current_score.unwrap().d {
+            return 'f';
+        } else {
+            return 'd';
+        }
     }
+
+    println!("i'm jsut saying f");
+    'f'
 }
