@@ -88,14 +88,7 @@ fn main() {
     println!("{model:#?}");
 }
 
-/// A map like this
-///
-///   [
-///   'ffffg': Score,
-///    ...
-///   ]
-///
-/// for each 5-gram.
+/// A map giving the score for each fivegram.
 #[derive(Debug, Clone)]
 struct Model {
     map: HashMap<Vec<char>, Score>,
@@ -121,7 +114,9 @@ fn update_model_f(m: Model, all_keys: Vec<char>) -> Model {
     //     return
     //   }
     // }
-    let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
+    let last: Vec<char> = all_keys.clone().into_iter().rev().take(1).collect();
+    let lastfive: Vec<char> = all_keys.into_iter().rev().take(5).collect();
+    let current_score: Option<&Score> = m.map.get(&lastfive);
 
     m
 }
@@ -151,6 +146,7 @@ fn predict(m: Model, all_keys: Vec<char>) -> char {
     //     return 'f'
     //   return 'd'
     // }
+
     let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
     if m.map.is_empty() {
         return 'f';
