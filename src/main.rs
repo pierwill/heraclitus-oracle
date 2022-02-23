@@ -31,6 +31,7 @@ fn main() {
     write!(stdout, "{}", termion::cursor::Goto(1, 2)).unwrap();
 
     let mut all_keys: Vec<char> = vec![];
+    let model = Model { pred_fn: |v| v[0] };
 
     for c in stdin.keys() {
         match c.unwrap() {
@@ -66,23 +67,20 @@ fn main() {
     println!("{all_keys:?}");
 }
 
-/*
-set up a model of the form
-
-  [
-  'ffffg': { f: 0 , d: 2 },
-   ...
-  ]
-
-for each 5-gram
-*/
+/// Set up a model of the form
+///
+///   [
+///   'ffffg': { f: 0 , d: 2 },
+///    ...
+///   ]
+///
+/// for each 5-gram.
 #[derive(Debug)]
 struct Model {
     pred_fn: fn(Vec<char>) -> char,
 }
 
-fn update_model_f() /* -> Box<dyn Fn(char) -> char> */
-{
+fn update_model_f(m: Model, all_keys: Vec<char>) -> Model {
     // function updateModelF (fivegram) {
     //   return function (letter) {
     //     var fg = model[fivegram]
@@ -93,21 +91,11 @@ fn update_model_f() /* -> Box<dyn Fn(char) -> char> */
     //     return
     //   }
     // }
+
+    m
 }
 
-fn predict_next_letter(/*five: Vec<char>*/) -> char {
-    // function predictNextLetter (fivegram) {
-    //   var m = model[fivegram]
-    //   if (!m)
-    //     return 'f'
-    //   if (m.f > m.d)
-    //     return 'f'
-    //   return 'd'
-    // }
-    'd'
-}
-
-fn predict(input: char) -> (char, char) {
+fn predict(m: Model, all_keys: Vec<char>) -> (char, char) {
     // function predict (inputS) {
     //   var lastSix = inputS.slidingWindow(6,6)
     //   return lastSix.map(s => {
@@ -126,10 +114,22 @@ fn predict(input: char) -> (char, char) {
 
     let last_six = vec!['f', 'f', 'f', 'f', 'f', 'f'];
     let fivegram: Vec<char> = last_six.into_iter().rev().take(5).collect();
-    let prediction: char = predict_next_letter();
+    let prediction: char = predict_next_letter(m, fivegram);
     let last = 'f';
 
     // update model
 
     (prediction, last)
+}
+
+fn predict_next_letter(m: Model, fivegram: Vec<char>) -> char {
+    // function predictNextLetter (fivegram) {
+    //   var m = model[fivegram]
+    //   if (!m)
+    //     return 'f'
+    //   if (m.f > m.d)
+    //     return 'f'
+    //   return 'd'
+    // }
+    'd'
 }
