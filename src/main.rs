@@ -1,5 +1,3 @@
-#![allow(dead_code)]
-
 use std::collections::HashMap;
 use std::io::{stdin, stdout, Write};
 
@@ -36,6 +34,7 @@ fn main() {
         match c.unwrap() {
             Key::Ctrl('c') | Key::Char('q') => break,
             Key::Char('f') => {
+                // record key press
                 all_keys.push('f');
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
                 let predicted = predict(model.clone(), lastfive.clone());
@@ -64,7 +63,7 @@ fn main() {
                 }
                 println!(
                     "guess %: {}",
-                    (guesses.correct as f32 / guesses.total as f32)
+                    (guesses.correct as f32 / guesses.total as f32) * 100.0
                 );
 
                 // update model
@@ -98,7 +97,7 @@ fn main() {
                 }
                 println!(
                     "guess %: {}",
-                    (guesses.correct as f32 / guesses.total as f32)
+                    (guesses.correct as f32 / guesses.total as f32) * 100.0
                 );
 
                 // update model
@@ -140,6 +139,22 @@ struct Guesses {
     total: i32,
 }
 
+fn predict(m: Model, all_keys: Vec<char>) -> char {
+    let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
+    if m.map.is_empty() {
+        return 'f';
+    }
+    let current_score = m.map.get(&fivegram);
+
+    match current_score {
+        Some(s) if s.f > s.d => 'f',
+        Some(s) if s.d > s.f => 'd',
+        // If we have no score, yet, predict 'f'.
+        None => 'f',
+        _ => unreachable!(),
+    }
+}
+
 fn update_model(m: Model, all_keys: Vec<char>) -> Model {
     let mut model = m;
 
@@ -165,24 +180,4 @@ fn update_model(m: Model, all_keys: Vec<char>) -> Model {
     model.map.insert(lastfive, new_score);
 
     model
-}
-
-fn predict(m: Model, all_keys: Vec<char>) -> char {
-    let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
-    if m.map.is_empty() {
-        return 'f';
-    }
-    let current_score = m.map.get(&fivegram);
-
-    match current_score {
-        Some(s) if s.f > s.d => 'f',
-        Some(s) if s.d > s.f => 'd',
-        // If we have no score, yet, predict 'f'.
-        None => 'f',
-        _ => unreachable!(),
-    }
-}
-
-fn is_correct(predicted: char, got: char) -> bool {
-    predicted == got
 }
