@@ -29,6 +29,7 @@ fn main() {
     let mut model = Model {
         map: HashMap::default(),
     };
+    let mut guesses = Guess::default();
 
     for c in stdin.keys() {
         match c.unwrap() {
@@ -103,6 +104,10 @@ struct Score {
     d: i32,
 }
 
+#[derive(Default, Debug, Clone)]
+struct Guesses {
+    correct: i32,
+    incorrect: i32,
 }
 
 fn update_model(m: Model, all_keys: Vec<char>) -> Model {
