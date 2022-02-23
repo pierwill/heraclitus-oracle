@@ -1,3 +1,5 @@
+//! Take a stream (?) of [prediction, letter] outputs a rolling mean of accuracy.
+
 /*
 var mean = require('running-mean')
 // takes a stream of [prediction, letter]
