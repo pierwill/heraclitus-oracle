@@ -80,14 +80,17 @@ fn main() {
                 )
                 .unwrap();
                 model = update_model(model, all_keys.clone());
-                println!("{:#?}", model.map);
             }
             _ => {}
         }
         stdout.flush().unwrap();
     }
-    println!("{all_keys:?}\n");
-    println!("{:#?}", model.map);
+
+    // clear screen and print debug stuff
+    let mut out = String::new();
+    out.push_str(format!("{all_keys:?}").as_str());
+    out.push_str(format!("{:#?}", model.map).as_str());
+    std::fs::write("out", out.as_bytes()).expect("oops");
 }
 
 /// A map giving the score for each fivegram.
