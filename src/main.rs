@@ -3,7 +3,7 @@
 #![allow(unused_variables)]
 
 use std::cell::RefCell;
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::io::{stdin, stdout, Write};
 
 use termion::event::Key;
@@ -31,7 +31,9 @@ fn main() {
     write!(stdout, "{}", termion::cursor::Goto(1, 2)).unwrap();
 
     let mut all_keys: Vec<char> = vec![];
-    let mut model = Model { pred_fn: |v| v[0] };
+    let mut model = Model {
+        map: BTreeMap::default(),
+    };
 
     for c in stdin.keys() {
         match c.unwrap() {
@@ -47,6 +49,14 @@ fn main() {
                 )
                 .unwrap();
                 write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2),).unwrap();
+                write!(
+                    stdout,
+                    "pred: {}, observed: {}{}",
+                    predict(model.clone(), lastfive.clone()),
+                    lastfive.clone().iter().rev().last().unwrap(),
+                    termion::cursor::Goto(1, 3),
+                )
+                .unwrap();
                 model = update_model_f(model, all_keys.clone());
             }
             Key::Char('d') => {
@@ -60,6 +70,14 @@ fn main() {
                 )
                 .unwrap();
                 write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2),).unwrap();
+                write!(
+                    stdout,
+                    "pred: {}, observed: {}{}",
+                    predict(model.clone(), lastfive.clone()),
+                    lastfive.clone().iter().rev().last().unwrap(),
+                    termion::cursor::Goto(1, 3),
+                )
+                .unwrap();
                 model = update_model_f(model, all_keys.clone());
             }
             _ => {}
@@ -69,17 +87,26 @@ fn main() {
     println!("{all_keys:?}");
 }
 
-/// Set up a model of the form
+/// A map like this
 ///
 ///   [
-///   'ffffg': { f: 0 , d: 2 },
+///   'ffffg': Score,
 ///    ...
 ///   ]
 ///
 /// for each 5-gram.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Model {
-    pred_fn: fn(Vec<char>) -> char,
+    map: BTreeMap<Vec<char>, Score>,
+}
+
+/// For each fivegram, f is the number
+/// of times f was pressed next, and likewise
+/// for d.
+#[derive(Debug, Clone)]
+struct Score {
+    f: i32,
+    d: i32,
 }
 
 fn update_model_f(m: Model, all_keys: Vec<char>) -> Model {
@@ -94,13 +121,11 @@ fn update_model_f(m: Model, all_keys: Vec<char>) -> Model {
     //   }
     // }
     let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
-    let f = m.pred_fn;
-    println!("current model f: {:?}", f);
 
     m
 }
 
-fn predict(m: Model, all_keys: Vec<char>) -> (char, char) {
+fn predict(m: Model, all_keys: Vec<char>) -> char {
     // function predict (inputS) {
     //   var lastSix = inputS.slidingWindow(6,6)
     //   return lastSix.map(s => {
@@ -117,13 +142,6 @@ fn predict(m: Model, all_keys: Vec<char>) -> (char, char) {
     //   })
     // }
 
-    let fivegram = all_keys.into_iter().rev().take(5).collect();
-    let prediction: char = predict_next_letter(m, fivegram);
-    let last = 'f';
-    (prediction, last)
-}
-
-fn predict_next_letter(m: Model, fivegram: Vec<char>) -> char {
     // function predictNextLetter (fivegram) {
     //   var m = model[fivegram]
     //   if (!m)
@@ -132,8 +150,7 @@ fn predict_next_letter(m: Model, fivegram: Vec<char>) -> char {
     //     return 'f'
     //   return 'd'
     // }
-    if fivegram.len() < 5 {
-        return 'f';
-    }
-    'd'
+    let fivegram: Vec<char> = all_keys.into_iter().rev().take(5).collect();
+
+    'f'
 }
