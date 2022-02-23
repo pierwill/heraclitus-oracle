@@ -57,7 +57,8 @@ fn main() {
                     termion::cursor::Goto(1, 3),
                 )
                 .unwrap();
-                model = update_model_f(model, all_keys.clone());
+                model = update_model(model, all_keys.clone());
+                println!("{:#?}", model.map);
             }
             Key::Char('d') => {
                 all_keys.push('d');
@@ -78,20 +79,29 @@ fn main() {
                     termion::cursor::Goto(1, 3),
                 )
                 .unwrap();
-                model = update_model_f(model, all_keys.clone());
+                model = update_model(model, all_keys.clone());
+                println!("{:#?}", model.map);
             }
             _ => {}
         }
         stdout.flush().unwrap();
     }
     println!("{all_keys:?}\n");
-    println!("{model:#?}");
+    println!("{:#?}", model.map);
 }
 
 /// A map giving the score for each fivegram.
 #[derive(Debug, Clone)]
 struct Model {
     map: HashMap<Vec<char>, Score>,
+}
+
+impl Default for Model {
+    fn default() -> Self {
+        Self {
+            map: HashMap::default(),
+        }
+    }
 }
 
 /// For each fivegram, f is the number
@@ -103,7 +113,7 @@ struct Score {
     d: i32,
 }
 
-fn update_model_f(m: Model, all_keys: Vec<char>) -> Model {
+fn update_model(mut m: Model, all_keys: Vec<char>) -> Model {
     // function updateModelF (fivegram) {
     //   return function (letter) {
     //     var fg = model[fivegram]
@@ -114,11 +124,38 @@ fn update_model_f(m: Model, all_keys: Vec<char>) -> Model {
     //     return
     //   }
     // }
-    let last: Vec<char> = all_keys.clone().into_iter().rev().take(1).collect();
+    let old_model = m.clone();
+
+    let last: char = all_keys
+        .clone()
+        .into_iter()
+        .rev()
+        .take(1)
+        .collect::<Vec<_>>()[0];
     let lastfive: Vec<char> = all_keys.into_iter().rev().take(5).collect();
     let current_score: Option<&Score> = m.map.get(&lastfive);
 
-    m
+    if lastfive.len() < 5 {
+        return Model::default();
+    }
+
+    if current_score.is_none() {
+        return Model::default();
+    }
+
+    let mut new_score = current_score.unwrap().clone();
+    if last == 'f' {
+        new_score.f += 1;
+    } else if last == 'd' {
+        new_score.d += 1;
+    }
+
+    println!("let's insert!");
+    m.map.insert(lastfive, new_score);
+
+    let mut mappp = HashMap::default();
+    mappp.insert(vec!['f', 'f', 'f', 'f', 'f'], Score { f: 0, d: 0 });
+    Model { map: mappp }
 }
 
 fn predict(m: Model, all_keys: Vec<char>) -> char {
