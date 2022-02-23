@@ -51,9 +51,9 @@ fn main() {
                 write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2),).unwrap();
                 write!(
                     stdout,
-                    "pred: {}, observed: {}{}",
-                    predict(model.clone(), lastfive.clone()),
-                    lastfive.clone().iter().rev().last().unwrap(),
+                    "predicted: {}, observed: {}{}",
+                    predict(model.clone(), lastfive.clone()), // predicted
+                    lastfive.clone().iter().rev().last().unwrap(), // observed
                     termion::cursor::Goto(1, 3),
                 )
                 .unwrap();
@@ -72,9 +72,9 @@ fn main() {
                 write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2),).unwrap();
                 write!(
                     stdout,
-                    "pred: {}, observed: {}{}",
-                    predict(model.clone(), lastfive.clone()),
-                    lastfive.clone().iter().rev().last().unwrap(),
+                    "predicted: {}, observed: {}{}",
+                    predict(model.clone(), lastfive.clone()), // predicted
+                    lastfive.clone().iter().rev().last().unwrap(), // observed
                     termion::cursor::Goto(1, 3),
                 )
                 .unwrap();
