@@ -82,7 +82,7 @@ fn main() {
         stdout.flush().unwrap();
     }
 
-    // clear screen and print debug stuff
+    // write data to file
     let mut out = String::new();
     out.push_str(format!("{all_keys:?}").as_str());
     out.push_str(format!("{:#?}", model.map).as_str());
@@ -154,6 +154,7 @@ fn predict(m: Model, all_keys: Vec<char>) -> char {
     }
 
     let current_score = m.map.get(&fivegram);
+
     if current_score.is_some() {
         if current_score.unwrap().f > current_score.unwrap().d {
             return 'f';
