@@ -32,7 +32,7 @@ fn main() {
 
     let mut all_keys: Vec<char> = vec![];
     let mut model = Model {
-        map: BTreeMap::default(),
+        map: HashMap::default(),
     };
 
     for c in stdin.keys() {
@@ -97,7 +97,7 @@ fn main() {
 /// for each 5-gram.
 #[derive(Debug, Clone)]
 struct Model {
-    map: BTreeMap<Vec<char>, Score>,
+    map: HashMap<Vec<char>, Score>,
 }
 
 /// For each fivegram, f is the number
