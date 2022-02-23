@@ -62,7 +62,7 @@ fn main() {
                     guesses.correct += 1;
                 }
                 println!(
-                    "guess %: {}",
+                    "guess %: {:.1}",
                     (guesses.correct as f32 / guesses.total as f32) * 100.0
                 );
 
@@ -96,7 +96,7 @@ fn main() {
                     guesses.correct += 1;
                 }
                 println!(
-                    "guess %: {}",
+                    "guess %: {:.1}",
                     (guesses.correct as f32 / guesses.total as f32) * 100.0
                 );
 
