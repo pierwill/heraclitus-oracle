@@ -32,9 +32,14 @@ fn main() {
     for c in stdin.keys() {
         match c.unwrap() {
             Key::Ctrl('c') | Key::Char('q') => break,
-            Key::Char('f') => {
+            Key::Char(k) => {
                 // record key press
-                all_keys.push('f');
+                match k {
+                    k if k == 'f' => all_keys.push('f'),
+                    k if k == 'd' => all_keys.push('d'),
+                    _ => continue,
+                };
+
                 let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
                 let predicted = predict(model.clone(), lastfive.clone());
                 let observed = lastfive.iter().rev().last().unwrap();
@@ -55,40 +60,6 @@ fn main() {
                 )
                 .unwrap();
 
-                // record guesses
-                guesses.total += 1;
-                if predicted == *observed {
-                    guesses.correct += 1;
-                }
-                println!(
-                    "guess %: {:.1}",
-                    (guesses.correct as f32 / guesses.total as f32) * 100.0
-                );
-
-                // update model
-                model = update_model(model, all_keys.clone());
-            }
-            Key::Char('d') => {
-                all_keys.push('d');
-                let lastfive: Vec<char> = all_keys.clone().into_iter().rev().take(5).collect();
-                let predicted = predict(model.clone(), lastfive.clone());
-                let observed = lastfive.iter().rev().last().unwrap();
-                write!(
-                    stdout,
-                    "{}{}",
-                    termion::clear::All,
-                    termion::cursor::Goto(1, 1)
-                )
-                .unwrap();
-                write!(stdout, "{:?}{}", lastfive, termion::cursor::Goto(1, 2),).unwrap();
-                write!(
-                    stdout,
-                    "predicted: {}, observed: {}{}",
-                    predicted,
-                    observed,
-                    termion::cursor::Goto(1, 3),
-                )
-                .unwrap();
                 // record guesses
                 guesses.total += 1;
                 if predicted == *observed {
