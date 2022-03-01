@@ -125,9 +125,7 @@ fn predict(m: Model, all_keys: Vec<char>) -> char {
     }
 }
 
-fn update_model(m: Model, all_keys: Vec<char>) -> Model {
-    let mut model = m;
-
+fn update_model(mut m: Model, all_keys: Vec<char>) -> Model {
     let last: char = all_keys
         .clone()
         .into_iter()
@@ -140,14 +138,14 @@ fn update_model(m: Model, all_keys: Vec<char>) -> Model {
         return Model::default();
     }
 
-    let current_score: Option<&Score> = model.map.get(&lastfive);
+    let current_score: Option<&Score> = m.map.get(&lastfive);
     let mut new_score = current_score.unwrap_or(&Score::default()).clone();
     if last == 'f' {
         new_score.f += 1;
     } else if last == 'd' {
         new_score.d += 1;
     }
-    model.map.insert(lastfive, new_score);
+    m.map.insert(lastfive, new_score);
 
-    model
+    m
 }
