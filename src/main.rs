@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use std::io::{stdin, stdout, Write};
 
 use termion::event::Key;
@@ -26,7 +26,7 @@ fn main() {
     let mut all_keys: Vec<char> = vec![];
     let mut guesses = Guesses::default();
     let mut model = Model {
-        map: HashMap::default(),
+        map: BTreeMap::default(),
     };
 
     for c in stdin.keys() {
@@ -91,7 +91,7 @@ fn main() {
 /// A map giving the score for each fivegram.
 #[derive(Default, Debug, Clone)]
 struct Model {
-    map: HashMap<Vec<char>, Score>,
+    map: BTreeMap<Vec<char>, Score>,
 }
 
 /// For each fivegram, f is the number
